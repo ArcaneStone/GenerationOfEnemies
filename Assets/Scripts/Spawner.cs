@@ -3,18 +3,23 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] private GameObject _enemyPrefab;
+    [SerializeField] private EnemyMover _enemyPrefab;
     [SerializeField] private List<Transform> _spawnPoint;
     [SerializeField] private float _spawnInterval = 2f;
 
-    private float _lastSpawnTime;
+    private float _nextSpawnTime;
+
+    private void Awake()
+    {
+        _nextSpawnTime = Time.time + _spawnInterval;
+    }
 
     private void Update()
     {
-        if (Time.time - _lastSpawnTime >= _spawnInterval )
+        if (Time.time - _nextSpawnTime >= _spawnInterval)
         {
             Spawn();
-            _lastSpawnTime = Time.time;
+            _nextSpawnTime += _spawnInterval;
         }
     }
 
@@ -23,13 +28,8 @@ public class Spawner : MonoBehaviour
         int randomSpawnIndex = Random.Range(0, _spawnPoint.Count);
         Transform spawnPoint = _spawnPoint[randomSpawnIndex];
 
-        GameObject enemy = Instantiate(_enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+        var enemy = Instantiate(_enemyPrefab, spawnPoint.position, spawnPoint.rotation);
 
-        EnemyMovement enemyMovement = enemy.GetComponent<EnemyMovement>();
-
-        if(enemyMovement != null)
-        {
-            enemyMovement.SetMovementDirection(spawnPoint.forward);
-        }
+        enemy.SetMovementDirection(spawnPoint.forward);
     }
 }
